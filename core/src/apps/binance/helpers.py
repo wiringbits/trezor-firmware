@@ -7,19 +7,23 @@ from apps.common import HARDENED
 
 def address_from_public_key(pubkey: bytes) -> str:
     # Address = RIPEMD160(SHA256(compressed public key))
+    # Address_Bech32 = HRP + '1' + bech32.encode(convert8BitsTo5Bits(RIPEMD160(SHA256(compressed public key))))
+    # HRP - bnb for productions, tbnb for tests
+
     h = sha256(pubkey).digest()
     h = ripemd160(h).digest()
 
     convertedbits = bech32.convertbits(h, 8, 5, False)
 
+    # TODO: handle test vs prod HRP
     return bech32.bech32_encode("tbnb", convertedbits)
 
 def validate_full_path(path: list) -> bool:
     """
-    Validates derivation path to equal 44'/144'/a'/0/0,
+    Validates derivation path to equal 44'/714'/a'/0/0,
     where `a` is an account index from 0 to 1 000 000.
-    Similar to Ethereum this should be 44'/144'/a', but for
-    compatibility with other HW vendors we use 44'/144'/a'/0/0.
+    Similar to Ethereum this should be 44'/714'/a', but for
+    compatibility with other HW vendors we use 44'/714'/a'/0/0.
     """
     if len(path) != 5:
         return False
