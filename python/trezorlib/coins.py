@@ -44,8 +44,26 @@ except Exception as e:
     raise ImportError("Failed to load coins.json. Check your installation.") from e
 
 slip44 = {name: coin["slip44"] for name, coin in by_name.items()}
-tx_api = {
+blockbook_tx_api = {
     name: TxApi(coin)
     for name, coin in by_name.items()
     if coin["blockbook"] or coin["bitcore"]
 }
+
+# source: https://stackoverflow.com/a/452981/3211175
+def _get_class(kls):
+    parts = kls.split(".")
+    module = ".".join(parts[:-1])
+    m = __import__(module)
+    for comp in parts[1:]:
+        m = getattr(m, comp)
+
+    return m
+
+custom_tx_api = {
+    name: _get_class("trezorlib.explorers." + coin["custom_explorer"]["api"])(coin)
+    for name, coin in by_name.items()
+    if "custom_explorer" in coin and coin["custom_explorer"]["urls"]
+}
+
+tx_api = {**blockbook_tx_api, **custom_tx_api}

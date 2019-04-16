@@ -29,6 +29,7 @@ from decimal import Decimal
 
 import click
 import requests
+import binascii
 
 from trezorlib import (
     btc,
@@ -1001,6 +1002,18 @@ def sign_tx(connect, coin, json_file):
                 block_height_bip115=block_height,
             )
         )
+    # TPOS
+    click.echo()
+    tpos_contract = click.prompt("TPoS contract (if any)", default="")
+    if (tpos_contract):
+        outputs.append(
+            proto.TxOutputType(
+                op_return_data=binascii.a2b_hex(tpos_contract),
+                amount=0,
+                script_type=3
+            )
+        )
+    # END
 
     signtx = proto.SignTx()
     signtx.version = click.prompt("Transaction version", type=int, default=2)

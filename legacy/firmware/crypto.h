@@ -47,10 +47,12 @@ int gpgMessageSign(HDNode *node, const uint8_t *message, size_t message_len,
 int cryptoMessageSign(const CoinInfo *coin, HDNode *node,
                       InputScriptType script_type, const uint8_t *message,
                       size_t message_len, uint8_t *signature);
-
 int cryptoMessageVerify(const CoinInfo *coin, const uint8_t *message,
                         size_t message_len, const char *address,
                         const uint8_t *signature);
+int cryptoUtxoSign(const CoinInfo *coin, HDNode *node,
+                        InputScriptType script_type, const uint8_t* utxo,
+                        size_t utxo_len, uint8_t *signature);
 
 /* ECIES disabled
 int cryptoMessageEncrypt(curve_point *pubkey, const uint8_t *msg, size_t

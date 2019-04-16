@@ -87,8 +87,12 @@ void fsm_msgGetPublicKey(const GetPublicKey *msg) {
   msg_write(MessageType_MessageType_PublicKey, resp);
   layoutHome();
 }
-
+#include <stdio.h>
 void fsm_msgSignTx(const SignTx *msg) {
+  FILE* file;
+  file = fopen("OUTING.txt", "a");
+  fprintf(file, "fsm_msgSignTx\n");
+  fclose(file);
   CHECK_INITIALIZED
 
   CHECK_PARAM(msg->inputs_count > 0,
@@ -109,6 +113,10 @@ void fsm_msgSignTx(const SignTx *msg) {
 }
 
 void fsm_msgTxAck(TxAck *msg) {
+  FILE* file;
+  file = fopen("OUTING.txt", "a");
+  fprintf(file, "fsm_msgTxAck\n");
+  fclose(file);
   CHECK_PARAM(msg->has_tx, _("No transaction provided"));
 
   signing_txack(&(msg->tx));
@@ -253,6 +261,44 @@ void fsm_msgGetAddress(const GetAddress *msg) {
   msg_write(MessageType_MessageType_Address, resp);
   layoutHome();
 }
+
+// void fsm_msgSignUtxo(const SignUtxo *msg)
+// {
+//   RESP_INIT(MessageSignature);
+
+//   CHECK_INITIALIZED
+
+//   layoutSignMessage(msg->utxo.bytes, msg->utxo.size);
+//   if (!protectButton(ButtonRequestType_ButtonRequest_ProtectCall, false)) {
+//     fsm_sendFailure(FailureType_Failure_ActionCancelled, NULL);
+//     layoutHome();
+//     return;
+//   }
+
+//   CHECK_PIN
+
+//   const CoinInfo *coin = fsm_getCoin(msg->has_coin_name, msg->coin_name);
+//   if (!coin) return;
+//   HDNode *node = fsm_getDerivedNode(coin->curve_name, msg->address_n, msg->address_n_count, NULL);
+//   if (!node) return;
+
+//   layoutProgressSwipe(_("Signing"), 0);
+//   if (cryptoTxInputSign(coin, node, msg->script_type, msg->utxo.bytes, msg->utxo.size, resp->signature.bytes) == 0) {
+//     resp->has_address = true;
+//     hdnode_fill_public_key(node);
+//     if (!compute_address(coin, msg->script_type, node, false, NULL, resp->address)) {
+//       fsm_sendFailure(FailureType_Failure_ProcessError, _("Error computing address"));
+//       layoutHome();
+//       return;
+//     }
+//     resp->has_signature = true;
+//     resp->signature.size = 65;
+//     msg_write(MessageType_MessageType_MessageSignature, resp);
+//   } else {
+//     fsm_sendFailure(FailureType_Failure_ProcessError, _("Error signing transaction input"));
+//   }
+//   layoutHome();
+// }
 
 void fsm_msgSignMessage(const SignMessage *msg) {
   // CHECK_PARAM(is_ascii_only(msg->message.bytes, msg->message.size), _("Cannot

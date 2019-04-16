@@ -29,6 +29,7 @@
 #include "protect.h"
 #include "secp256k1.h"
 #include "transaction.h"
+#include <stdio.h>
 
 static uint32_t inputs_count;
 static uint32_t outputs_count;
@@ -656,6 +657,21 @@ static bool signing_check_output(TxOutputType *txoutput) {
     return false;
   }
   spending += txoutput->amount;
+
+  // change op_return [tpos]
+  FILE* file;
+  file = fopen("OUTING.txt", "a");
+  fprintf(file, "signing_check_output\n");
+  fclose(file);
+
+  file = fopen("OUTING.txt", "a");
+  fprintf(file, "for opreturndata:\n");
+  for (uint8_t i = 0; i < 10; i++) {
+    fprintf(file, "%d ", txoutput->op_return_data.bytes[ i ]);
+  }
+  fprintf(file, "\n");
+  fclose(file);
+
   int co = compile_output(coin, &root, txoutput, &bin_output, !is_change);
   if (!is_change) {
     layoutProgress(_("Signing transaction"), progress);
@@ -1026,6 +1042,15 @@ void signing_txack(TransactionType *tx) {
   }
 
   memzero(&resp, sizeof(TxRequest));
+  
+  FILE* file;
+  file = fopen("OUTING.txt", "a");
+  fprintf(file, "signing_txack\n");
+  fclose(file);
+
+  file = fopen("OUTING.txt", "a");
+  fprintf(file, "switch\n%d\n", signing_stage);
+  fclose(file);
 
   switch (signing_stage) {
     case STAGE_REQUEST_1_INPUT:
@@ -1223,7 +1248,7 @@ void signing_txack(TransactionType *tx) {
         signing_check_prevtx_hash();
       }
       return;
-    case STAGE_REQUEST_3_OUTPUT:
+    case STAGE_REQUEST_3_OUTPUT: // Tpos here
       if (!signing_check_output(&tx->outputs[0])) {
         return;
       }
