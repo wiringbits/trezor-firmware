@@ -136,7 +136,7 @@ int cryptoMessageSign(const CoinInfo *coin, HDNode *node,
                       InputScriptType script_type, const uint8_t *message,
                       size_t message_len, uint8_t *signature) {
   uint8_t hash[HASHER_DIGEST_LENGTH];
-  cryptoMessageHash(coin, message, message_len, hash);
+  cryptoMessageHashWithoutHeader(coin, message, message_len, hash);
 
   uint8_t pby;
   int result = hdnode_sign_digest(node, hash, signature + 1, &pby, NULL);
